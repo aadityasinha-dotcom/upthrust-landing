@@ -25,10 +25,16 @@ export function Header({ settings }: { settings: SiteSettings }) {
             className="h-8 w-auto"
           />
         </Link>
-        <CtaLink href={settings.headerCta.href} variant="header" className="hidden md:inline-flex">
-          {settings.headerCta.label}
-        </CtaLink>
-        <MobileNav cta={settings.headerCta} />
+        <nav aria-label="Primary">
+          <CtaLink
+            href={settings.headerCta.href}
+            variant="header"
+            className="hidden md:inline-flex"
+          >
+            {settings.headerCta.label}
+          </CtaLink>
+          <MobileNav cta={settings.headerCta} />
+        </nav>
       </Container>
     </header>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { Anton, Inter } from "next/font/google";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 // next/font downloads the fonts at build time and self-hosts them: no request to
@@ -22,9 +23,11 @@ const anton = Anton({
   variable: "--font-anton",
 });
 
-// Placeholder until Phase 6 (SEO) fills this from the CMS.
+// Site-wide defaults. page.tsx overrides title/description from the CMS.
+// metadataBase turns the relative canonical/OG paths below into absolute URLs.
 export const metadata: Metadata = {
-  title: "Upthrust",
+  metadataBase: new URL(siteUrl),
+  title: { default: "Upthrust", template: "%s | Upthrust" },
   description: "Bold design that performs.",
 };
 
@@ -36,7 +39,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${anton.variable} h-full antialiased`}>
       {gtmId && <GoogleTagManager gtmId={gtmId} />}
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {/* First tab stop on the page: lets keyboard users jump past the header. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-black focus:px-4 focus:py-2 focus:text-white focus:outline-2 focus:outline-offset-2 focus:outline-primary"
+        >
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

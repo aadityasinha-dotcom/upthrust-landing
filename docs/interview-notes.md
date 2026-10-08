@@ -73,3 +73,19 @@ One-sentence answers I can expand on live. Kept in sync as each phase lands.
 - **Accessibility of the form?** Real `<label>`s (the email one is visually hidden to match the design), `aria-invalid` + `aria-describedby` on invalid fields pointing at the error text, success/error in `role="status" aria-live="polite"`, visible focus rings, submit disabled while in flight.
 - **Why is the form a client component?** It holds state (values, errors, status) and calls `fetch`. It's one of three client components on the page (mobile nav, form, Studio).
 - **Why no react-hook-form?** Three fields; `useState` is simpler to read and explain. The option was left open in CLAUDE.md.
+
+## Phase 6 — SEO + accessibility
+
+- **Where do title and description come from?** `generateMetadata` in `app/page.tsx`: page SEO fields from the CMS, falling back to the site-settings defaults. `layout.tsx` sets `metadataBase` (from `NEXT_PUBLIC_SITE_URL`) and a title template.
+- **What does `metadataBase` do?** Turns relative values (`canonical: "/"`, `images: "/og.png"`) into absolute URLs, so one env var switches everything from localhost to the production domain.
+- **Open Graph image?** `public/og.png`, a 1200×630 crop of the supplied hero render (no generated imagery). If an editor uploads one in Site settings → SEO it takes over.
+- **Structured data?** `components/seo/JsonLd.tsx` renders a schema.org `Organization` (name, url, logo, socials, contact email) as a JSON-LD script. No FAQ in the design, so no `FAQPage`.
+- **Why escape `<` in the JSON-LD?** `JSON.stringify` output goes into a `<script>` via `dangerouslySetInnerHTML`; escaping `<` prevents a `</script>` inside CMS text from breaking out of the tag.
+- **robots and sitemap?** App Router conventions: `app/robots.ts` (allow all, disallow `/studio` and `/api/`) and `app/sitemap.ts`, both served at their standard URLs. The Studio page additionally sets `noindex` via next-sanity's metadata export.
+- **Is the content really server-rendered?** `curl` of the page shows the headline inside `<h1>`, all copy, and the meta tags in the raw HTML. No client fetch is needed for first paint.
+- **Heading structure?** One `<h1>` (hero). `<h2>` per service panel and the newsletter heading. Sections use `aria-labelledby` or `aria-label`.
+- **Landmarks?** `<header>`, `<nav aria-label="Primary">`, `<main id="main">`, `<section>`s, `<footer>`. The skip link is the first tab stop and targets `#main`.
+- **Images?** Every `next/image` has alt text from the CMS; decorative ones (grid, curve, scribbles, icons) use `alt=""` and `aria-hidden`.
+- **Focus?** Outlines are never removed; `focus-visible` rings use the brand colour (orange on white, white on black).
+- **Colour contrast?** Orange on white is 3.48:1, so it is only used at ≥24px (large-text AA). Grey `#808080` on black is 5.3:1. Flagged in `design/spec.md`, design not changed.
+- **Known limitation?** The consent text is 9.5px as designed; it's a small fraction of the page so Lighthouse's legible-font-size check still passes, but it's under the usual 12px floor.
