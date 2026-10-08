@@ -40,3 +40,21 @@ One-sentence answers I can expand on live. Kept in sync as each phase lands.
 - **How is the footer wordmark always one line?** Sized in container-query units: 200px at 1440 = 13.9cqw; the flame is positioned in % of the row.
 - **Why `lg` for the services side-by-side layout, not `md`?** A 492px card plus 480px text column doesn't fit in 768 minus gutters; it was clipping at 768.
 - **Why `priority` only on the bust?** It's the largest above-the-fold image (LCP candidate); everything else lazy-loads by default.
+
+## Phase 4 — Sanity CMS
+
+- **Why Sanity?** Hosted Studio a non-developer can use, structured schemas, typed GROQ queries, free tier, webhooks for cache invalidation, and it embeds inside the Next app at `/studio` so there is one deploy.
+- **How does content reach the page?** `lib/content.ts#getContent()` runs two GROQ queries (`sanity/queries.ts`), maps the raw documents to the component types (`sanity/mappers.ts`) and falls back to `lib/fallback.ts` for anything missing. `page.tsx` hands `page.sections` to `SectionRenderer`.
+- **What is `"use cache"` doing in `getContent`?** Next 16 Cache Components: the result is cached, tagged `content`, and `cacheLife("max")` keeps it until the tag is revalidated. The home page is a static shell (build output shows `○ /  30d  1y`).
+- **How does a Studio edit reach production?** Publishing fires a Sanity webhook to `POST /api/revalidate`. `parseBody` from `next-sanity/webhook` verifies the HMAC signature with `SANITY_REVALIDATE_SECRET`, then `revalidateTag("content", "max")` marks the cache stale: the next visitor gets the stale page while fresh content is fetched (stale-while-revalidate).
+- **Why `revalidateTag(tag, "max")` with a second argument?** The one-argument form is deprecated in Next 16; `"max"` is the documented recommendation for CMS content.
+- **Why one cache tag instead of per-type tags?** One page, five documents: purging everything is simpler to reason about and costs one refetch.
+- **What happens if Sanity is down or empty?** `getContent` catches and returns the hardcoded design copy; the mappers also fill missing fields per-field. The page never renders empty.
+- **Why do components never import Sanity types?** Components take the `lib/types.ts` shapes. Swapping the CMS later means rewriting `sanity/mappers.ts` only.
+- **What are singletons and how are they enforced?** `siteSettings` and `landingPage` exist once: fixed `_id`s, pinned in the Studio sidebar, removed from "Create new", and only publish/discard actions allowed (`sanity.config.ts`).
+- **How is "repeated content sections" modelled?** `landingPage.sections[]` is an array of block types (hero, logo strip, services); the services block references `service` documents, so reordering or adding a service is drag-and-drop in the Studio.
+- **Why is the Studio page a `"use client"` wrapper?** Importing `sanity.config.ts` in a Server Component pulled the `sanity` package into the RSC graph, where `swr`'s `react-server` build has no default export and the build failed. The client boundary keeps it in the browser bundle.
+- **How are seeded images handled?** `scripts/seed.mts` uploads the files from `/public` as Sanity assets (de-duplicated by content hash) and references them; the queries flatten each to `{src, width, height, alt}` from the asset metadata so `next/image` gets real dimensions. `next.config.ts` allows `cdn.sanity.io`.
+- **Why `.mts` and `--experimental-strip-types` for the seed?** No extra dependency (no ts-node/tsx): Node 22 strips types natively; `.mts` makes it ESM without changing the project's module type.
+- **Why is `submission` read-only in the Studio?** Only the server route writes it with the write token; editors can review entries but not forge or alter them.
+- **Where is the write token used?** Only in `scripts/seed.mts` (local) and, in Phase 5, `app/api/submit/route.ts`. It is never imported by a client component and never logged.
