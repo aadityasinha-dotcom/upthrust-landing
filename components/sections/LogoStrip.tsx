@@ -3,7 +3,8 @@ import { Container } from "@/components/ui/Container";
 import type { LogoStripContent } from "@/lib/types";
 
 // 144px tall band under the hero: stat + caption on the left, six client logos
-// spread across 1112px on the right. Logos wrap to a 2-column grid on mobile.
+// spread across 1112px on the right. Logos: 2-column grid on mobile, 3 columns at md,
+// one row at xl.
 export function LogoStrip({ content }: { content: LogoStripContent }) {
   return (
     <section aria-label="Brands that trust us" className="relative mb-20">
@@ -12,7 +13,7 @@ export function LogoStrip({ content }: { content: LogoStripContent }) {
           <p className="font-bold text-h3">{content.stat}</p>
           <p className="max-w-[12rem] text-body">{content.caption}</p>
         </div>
-        <ul className="grid grid-cols-2 items-center gap-x-8 gap-y-6 md:flex md:flex-wrap md:justify-between md:gap-x-10 xl:w-[1112px] xl:flex-nowrap">
+        <ul className="grid grid-cols-2 items-center gap-x-8 gap-y-6 md:grid-cols-3 md:gap-x-10 xl:flex xl:w-[1112px] xl:justify-between">
           {content.logos.map((logo, i) => (
             <li key={`${logo.alt}-${i}`} className="flex items-center justify-center">
               <Image
@@ -20,7 +21,7 @@ export function LogoStrip({ content }: { content: LogoStripContent }) {
                 alt={logo.alt}
                 width={logo.width}
                 height={logo.height}
-                className="h-auto w-auto"
+                className="h-auto max-w-full"
               />
             </li>
           ))}
