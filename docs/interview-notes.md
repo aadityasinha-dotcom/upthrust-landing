@@ -58,3 +58,18 @@ One-sentence answers I can expand on live. Kept in sync as each phase lands.
 - **Why `.mts` and `--experimental-strip-types` for the seed?** No extra dependency (no ts-node/tsx): Node 22 strips types natively; `.mts` makes it ESM without changing the project's module type.
 - **Why is `submission` read-only in the Studio?** Only the server route writes it with the write token; editors can review entries but not forge or alter them.
 - **Where is the write token used?** Only in `scripts/seed.mts` (local) and, in Phase 5, `app/api/submit/route.ts`. It is never imported by a client component and never logged.
+
+## Phase 5 — Form + tracking
+
+- **Where does the form submit to?** `POST /api/submit` (`app/api/submit/route.ts`). It re-validates with the same zod schema as the client, drops honeypot hits, applies a best-effort rate limit, and creates a `submission` document in Sanity with the server-side write token.
+- **Why validate on both sides?** Client-side for instant feedback; server-side because the client can be bypassed with curl. One schema in `lib/validation.ts` means they can't drift.
+- **How does the honeypot work?** A hidden `website` input (`display:none`, `tabindex=-1`, `aria-hidden`). Humans never fill it; bots that auto-fill every field do. The server answers `{ok: true}` without saving so the bot learns nothing.
+- **How does the rate limit work and what's its weakness?** 5 requests per IP per 10 minutes in an in-memory Map. On serverless each instance has its own map, so it only blunts naive abuse. The honeypot and validation do the real work; a shared store (KV/Upstash) is the upgrade path.
+- **Where is the write token read?** Only in `sanity/server-client.ts`, called from the route handler. It is never imported by a client component, never in `NEXT_PUBLIC_*`, never logged.
+- **When exactly is the `form_submit` event pushed?** In `NewsletterForm` after a 2xx response, after the form is cleared and the success message is set. Never on validation or network errors. The helper is `lib/gtm.ts#pushEvent`, the only place events come from.
+- **How would you rename the event or add a parameter?** Edit the `GtmEvent` type and `pushEvent` call: one file for the helper, one line in the form.
+- **How is GTM loaded?** `@next/third-parties` `GoogleTagManager` in `app/layout.tsx`, rendered only when `NEXT_PUBLIC_GTM_ID` is set. It injects `gtm.js` after hydration so it never competes with the page's own load.
+- **How do you verify tracking?** GTM Preview / Tag Assistant, or `window.dataLayer` in the console: after a successful submit it contains `{event: "form_submit", form_name: "newsletter"}`.
+- **Accessibility of the form?** Real `<label>`s (the email one is visually hidden to match the design), `aria-invalid` + `aria-describedby` on invalid fields pointing at the error text, success/error in `role="status" aria-live="polite"`, visible focus rings, submit disabled while in flight.
+- **Why is the form a client component?** It holds state (values, errors, status) and calls `fetch`. It's one of three client components on the page (mobile nav, form, Studio).
+- **Why no react-hook-form?** Three fields; `useState` is simpler to read and explain. The option was left open in CLAUDE.md.

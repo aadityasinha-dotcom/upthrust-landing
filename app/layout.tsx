@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleTagManager } from "@next/third-parties/google";
 import { Anton, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -27,9 +28,14 @@ export const metadata: Metadata = {
   description: "Bold design that performs.",
 };
 
+// GTM is the only third-party script. @next/third-parties injects it after
+// hydration so it never competes with the page's own loading. No ID = no script.
+const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${anton.variable} h-full antialiased`}>
+      {gtmId && <GoogleTagManager gtmId={gtmId} />}
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
