@@ -37,12 +37,15 @@ export function Hero({ content }: { content: HeroContent }) {
               </span>
             </h1>
 
-            {/* Architectural wireframe, decorative, bottom-right. Hidden on mobile. */}
+            {/* Architectural wireframe, decorative, bottom-right. Hidden on mobile.
+                Browsers still fetch display:none images, so `sizes` tells mobile it is
+                1px wide and the browser picks the smallest (16px) candidate instead. */}
             <Image
               src="/images/hero/wireframe.webp"
               alt=""
               width={440}
               height={519}
+              sizes="(min-width: 768px) 440px, 1px"
               aria-hidden="true"
               className="hidden md:absolute md:top-[calc(560*var(--u))] md:left-[calc(1000*var(--u))] md:z-10 md:block md:h-auto md:w-[calc(440*var(--u))]"
             />

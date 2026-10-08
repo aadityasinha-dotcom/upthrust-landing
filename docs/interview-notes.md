@@ -89,3 +89,15 @@ One-sentence answers I can expand on live. Kept in sync as each phase lands.
 - **Focus?** Outlines are never removed; `focus-visible` rings use the brand colour (orange on white, white on black).
 - **Colour contrast?** Orange on white is 3.48:1, so it is only used at ≥24px (large-text AA). Grey `#808080` on black is 5.3:1. Flagged in `design/spec.md`, design not changed.
 - **Known limitation?** The consent text is 9.5px as designed; it's a small fraction of the page so Lighthouse's legible-font-size check still passes, but it's under the usual 12px floor.
+
+## Phase 7 — Performance
+
+- **Scores?** Lighthouse on the production build: mobile 94–97 performance across runs (target ≥85), desktop 100; CLS 0 on both; accessibility / SEO / best-practices 100.
+- **What is the LCP element and how is it handled?** The hero bust (`next/image` with `priority`, which adds `fetchpriority=high` and a `<link rel=preload>`). It's the only image with `priority`; everything else lazy-loads by default.
+- **How are images sized?** Every `next/image` has real `width`/`height` (from the file, or from Sanity asset metadata) so there's no layout shift, plus a `sizes` attribute describing the rendered width so the browser picks the smallest fitting candidate from the generated srcset. Next serves AVIF/WebP from `/_next/image`.
+- **Why is the services curve special?** It's a soft blurred render used as a 300vw background on four panels. It's one URL (downloaded once) with `sizes` capped at 150vw / 2880px instead of 300vw — invisible difference, mobile image transfer went from 195 KB to 116 KB. (A `quality` prop was tried and dropped: Next 16 only honours qualities listed in `images.qualities`.)
+- **Why does the hidden hero wireframe have `sizes="…, 1px"`?** Browsers fetch `display:none` images anyway; telling mobile it's 1px wide makes the browser pick the 16px srcset candidate (~0.5 KB) instead of a 1080px one.
+- **Fonts?** `next/font` self-hosts Anton and Inter: preloaded, `display: swap`, size-adjusted fallback so no CLS when they arrive.
+- **Third-party scripts?** Only GTM, injected by `@next/third-parties` after hydration. It's the largest unused-JS item on the page and the main contributor to mobile TBT; that's the accepted cost of the tracking requirement.
+- **Why is the page fast by construction?** Static HTML shell from the build (Cache Components), three small client components (nav, form, Studio route not on this page), no CSS-in-JS at runtime, Tailwind ships only the used classes.
+- **What would you do next with more time?** Export the Figma bento/bust assets at 2× (current placeholders are 1×), and move the rate limiter to a shared store.

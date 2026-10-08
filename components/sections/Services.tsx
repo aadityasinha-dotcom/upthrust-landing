@@ -37,11 +37,13 @@ function ServicePanel({ service, index }: { service: Service; index: number }) {
           curveOffsets[index % curveOffsets.length],
         )}
       >
+        {/* Soft, blurred 3D render: capping `sizes` well below 300vw is invisible but
+            cuts ~80 KB on mobile. Same URL for all four panels, so it downloads once. */}
         <Image
           src="/images/services/curve.webp"
           alt=""
           fill
-          sizes="300vw"
+          sizes="(min-width: 1024px) 2880px, 150vw"
           className="object-cover"
         />
       </div>
