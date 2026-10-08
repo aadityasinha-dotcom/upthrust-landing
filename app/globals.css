@@ -57,6 +57,10 @@
   --text-small--line-height: 16.8px;
   --text-small--letter-spacing: -0.01em;
 
+  --text-note: 14px; /* services italic aside */
+  --text-note--line-height: 1.5;
+  --text-note--letter-spacing: -0.02em;
+
   --text-fine: 9.5px; /* footer consent text */
   --text-fine--line-height: 12px;
   --text-fine--letter-spacing: 0;
