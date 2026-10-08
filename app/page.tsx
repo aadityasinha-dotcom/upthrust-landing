@@ -1,16 +1,13 @@
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { Hero } from "@/components/sections/Hero";
-import { LogoStrip } from "@/components/sections/LogoStrip";
-import { Services } from "@/components/sections/Services";
+import { SectionRenderer } from "@/components/sections/SectionRenderer";
 import { GridBackground } from "@/components/ui/GridBackground";
-import { fallbackContent, fallbackSiteSettings } from "@/lib/fallback";
+import { getContent } from "@/lib/content";
 
-// Phase 3: hardcoded content. Phase 4 fetches the same shape from Sanity and
-// falls back to this when the CMS is empty.
-export default function Home() {
-  const content = fallbackContent;
-  const settings = fallbackSiteSettings;
+// Content comes from Sanity via getContent() (cached, tag-revalidated), with the
+// hardcoded design copy as fallback so the page never renders empty.
+export default async function Home() {
+  const { settings, page } = await getContent();
 
   return (
     <>
@@ -20,12 +17,10 @@ export default function Home() {
         <GridBackground />
         <Header settings={settings} />
         <main id="main">
-          <Hero content={content.hero} />
-          <LogoStrip content={content.logoStrip} />
-          <Services services={content.services} />
+          <SectionRenderer sections={page.sections} />
         </main>
       </div>
-      <Footer content={content.footer} />
+      <Footer content={settings.footer} />
     </>
   );
 }

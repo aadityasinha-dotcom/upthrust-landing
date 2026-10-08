@@ -21,6 +21,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
             alt={settings.logo.alt}
             width={settings.logo.width}
             height={settings.logo.height}
+            unoptimized={settings.logo.src.endsWith(".svg")}
             className="h-8 w-auto"
           />
         </Link>

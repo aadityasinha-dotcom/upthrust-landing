@@ -21,6 +21,8 @@ export function LogoStrip({ content }: { content: LogoStripContent }) {
                 alt={logo.alt}
                 width={logo.width}
                 height={logo.height}
+                // next/image won't optimise SVGs (L'Oréal); serve those as-is.
+                unoptimized={logo.src.endsWith(".svg")}
                 className="h-auto max-w-full"
               />
             </li>

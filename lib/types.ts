@@ -1,5 +1,5 @@
-// Content types shared by the fallback content (Phase 3) and the Sanity queries (Phase 4).
-// Keeping them in one place means components never care where the data came from.
+// Content types shared by the fallback content and the Sanity mappers.
+// Components only ever see these shapes, never raw CMS documents.
 
 export type ImageAsset = {
   src: string;
@@ -13,10 +13,39 @@ export type NavLink = {
   href: string;
 };
 
+export type FooterLinkGroup = {
+  link: NavLink;
+  description: string;
+  email: string;
+};
+
+export type FooterContent = {
+  wordmark: [string, string]; // ["Upthrust", "Design"]
+  groups: FooterLinkGroup[];
+  tagline: string;
+  links: NavLink[];
+  socials: NavLink[];
+  legal: NavLink[];
+  copyright: string;
+  newsletter: {
+    heading: string;
+    consent: string;
+    placeholder: string;
+    submit: string;
+  };
+};
+
+// Site-wide content: header, footer, SEO defaults. One Sanity document.
 export type SiteSettings = {
   siteName: string;
   logo: ImageAsset;
   headerCta: NavLink;
+  footer: FooterContent;
+  seo: {
+    title: string;
+    description: string;
+    ogImage?: string; // absolute URL, 1200x630
+  };
 };
 
 export type HeroContent = {
@@ -47,31 +76,19 @@ export type Service = {
   cta: NavLink;
 };
 
-export type FooterLinkGroup = {
-  link: NavLink;
-  description: string;
-  email: string;
-};
-
-export type FooterContent = {
-  wordmark: [string, string]; // ["Upthrust", "Design"]
-  groups: FooterLinkGroup[];
-  tagline: string;
-  links: NavLink[];
-  socials: NavLink[];
-  legal: NavLink[];
-  copyright: string;
-  newsletter: {
-    heading: string;
-    consent: string;
-    placeholder: string;
-    submit: string;
-  };
-};
+// The page is an ordered list of sections. Each section type maps to one
+// Sanity block type and one React component (see SectionRenderer).
+export type HeroSection = { type: "hero"; key: string } & HeroContent;
+export type LogoStripSection = { type: "logoStrip"; key: string } & LogoStripContent;
+export type ServicesSection = { type: "services"; key: string; services: Service[] };
+export type Section = HeroSection | LogoStripSection | ServicesSection;
 
 export type LandingPageContent = {
-  hero: HeroContent;
-  logoStrip: LogoStripContent;
-  services: Service[];
-  footer: FooterContent;
+  sections: Section[];
+  seo?: { title?: string; description?: string };
+};
+
+export type SiteContent = {
+  settings: SiteSettings;
+  page: LandingPageContent;
 };
