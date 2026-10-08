@@ -101,3 +101,9 @@ One-sentence answers I can expand on live. Kept in sync as each phase lands.
 - **Third-party scripts?** Only GTM, injected by `@next/third-parties` after hydration. It's the largest unused-JS item on the page and the main contributor to mobile TBT; that's the accepted cost of the tracking requirement.
 - **Why is the page fast by construction?** Static HTML shell from the build (Cache Components), three small client components (nav, form, Studio route not on this page), no CSS-in-JS at runtime, Tailwind ships only the used classes.
 - **What would you do next with more time?** Export the Figma bento/bust assets at 2× (current placeholders are 1×), and move the rate limiter to a shared store.
+
+## Phase 8 — README
+
+- **Where do I start reading the code?** `app/page.tsx` → `lib/content.ts` → `components/sections/SectionRenderer.tsx`. Everything else hangs off those three.
+- **What would a new developer need to run it?** Node 22, `npm install`, a `.env.local` from `.env.example`. Without Sanity values the page still renders from `lib/fallback.ts`.
+- **How honest is the AI section?** Claude generated the code per phase from my brief; I reviewed, tested at three widths and in the Studio, and made the design calls listed. The README names them.
