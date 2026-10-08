@@ -1,9 +1,31 @@
-// Placeholder until Phase 3. Sections get built as Server Components under components/sections.
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
+import { Hero } from "@/components/sections/Hero";
+import { LogoStrip } from "@/components/sections/LogoStrip";
+import { Services } from "@/components/sections/Services";
+import { GridBackground } from "@/components/ui/GridBackground";
+import { fallbackContent, fallbackSiteSettings } from "@/lib/fallback";
+
+// Phase 3: hardcoded content. Phase 4 fetches the same shape from Sanity and
+// falls back to this when the CMS is empty.
 export default function Home() {
+  const content = fallbackContent;
+  const settings = fallbackSiteSettings;
+
   return (
-    <main className="mx-auto max-w-page p-5 md:p-10 xl:p-18">
-      <h1 className="font-display text-cta text-primary uppercase">Upthrust</h1>
-      <p className="text-body">Bold design that performs.</p>
-    </main>
+    <>
+      {/* The drafting grid runs behind header + hero + logo strip. `isolate` keeps
+          the grid's negative z-index inside this wrapper. */}
+      <div className="relative isolate">
+        <GridBackground />
+        <Header settings={settings} />
+        <main id="main">
+          <Hero content={content.hero} />
+          <LogoStrip content={content.logoStrip} />
+          <Services services={content.services} />
+        </main>
+      </div>
+      <Footer content={content.footer} />
+    </>
   );
 }
