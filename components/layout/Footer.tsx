@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { Container } from "@/components/ui/Container";
 import type { FooterContent } from "@/lib/types";
 
@@ -8,8 +9,7 @@ const focusRing =
 
 // Footer: giant Anton wordmark, then a 24-column grid (15 | 9) with 1px white rules.
 // The wordmark is sized in container-query units so it stays one line at every width
-// (200px at 1440 -> 13.9cqw). The newsletter form is static markup here; Phase 5
-// turns it into the working ContactForm.
+// (200px at 1440 -> 13.9cqw). The newsletter form is the one client component here.
 export function Footer({ content }: { content: FooterContent }) {
   const [word1, word2] = content.wordmark;
   return (
@@ -61,37 +61,7 @@ export function Footer({ content }: { content: FooterContent }) {
             </div>
 
             <div className="pt-5 pb-10 md:col-span-9 md:pt-[19px]">
-              <form id="signup" aria-labelledby="signup-heading" className="flex flex-col gap-3.5">
-                <h2 id="signup-heading" className="font-medium text-small">
-                  {content.newsletter.heading}
-                </h2>
-                <div className="flex items-start gap-2">
-                  <input
-                    id="consent"
-                    name="consent"
-                    type="checkbox"
-                    className={`mt-px size-2.5 shrink-0 appearance-none border border-white checked:bg-white ${focusRing}`}
-                  />
-                  <label htmlFor="consent" className="text-fine">
-                    {content.newsletter.consent}
-                  </label>
-                </div>
-                <div className="flex flex-col items-start gap-2.5">
-                  <label htmlFor="email" className="sr-only">
-                    Email address
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder={content.newsletter.placeholder}
-                    className={`w-full max-w-md bg-transparent text-small placeholder:text-muted ${focusRing}`}
-                  />
-                  <button type="submit" className={`text-small ${focusRing}`}>
-                    {content.newsletter.submit}
-                  </button>
-                </div>
-              </form>
+              <NewsletterForm content={content.newsletter} />
             </div>
           </div>
 
